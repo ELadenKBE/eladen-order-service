@@ -1,0 +1,34 @@
+name: Pull Request Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Django tests
+        run: python manage.py test tests --pattern="*_test.py"
+
+      - name: Check test result
+        run: |
+          if [ ${{ job.status }} == 'failure' ]; then
+            echo "Tests failed. Rejecting the pull request..."
+            exit 1
+          else
+            echo "Tests passed. Pull request can be merged."
+          fi
