@@ -37,10 +37,15 @@ class OrdersRepository(RepositoryBase, IRepository):
                 :return:
                 """
         user: ExtendedUser = info.context.user
+        user = ExtendedUser.objects.filter(username="tim_admin").first()
+        item = None
         if user.is_user():
-            return Order.objects.filter(user=user, id=searched_id).first()
-        if user.is_admin():
-            return Order.objects.filter(id=searched_id).first()
+            item = Order.objects.filter(user=user, id=searched_id).first()
+        elif user.is_admin():
+            item = Order.objects.filter(id=searched_id).first()
+        if item is None:
+            raise ResourceError('object with searched id does not exist')
+        return [item]
 
     @staticmethod
     def get_items_by_filter(search_filter: Q,
