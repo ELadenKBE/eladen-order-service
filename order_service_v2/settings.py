@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphene_django',
+    'orders',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -128,3 +130,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GRAPHENE = {
     'SCHEMA': 'order_service_v2.schema.schema',
 }
+
+AUTH_USER_MODEL = 'users.ExtendedUser'
