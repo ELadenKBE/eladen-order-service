@@ -74,19 +74,21 @@ class OrdersRepository(RepositoryBase, IRepository):
         user = ExtendedUser.objects.filter(username="tim_admin").first()
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
-        order = Order(time_of_order=kwargs["time_of_order"],
+        good_ids = [int(id) for id in kwargs["goods_ids"]]
+        order = Order(
+                      goods_ids=good_ids,
+                      user_id=user.id,
+                      time_of_order=kwargs["time_of_order"],
                       delivery_address=kwargs["delivery_address"],
                       # TODO calculate delivery and items price
                       items_price=1000,
                       delivery_price=100,
                       delivery_status="order created",
-                      payment_status="not paid",
-                      user=user,
-                      goods_ids=kwargs["goods_ids"]
+                      payment_status="not paid"
                       )
         order.save()
 
-        decrease_amounts(kwargs["goods_ids"])
+        #decrease_amounts(kwargs["goods_ids"])
         return order
 
     @staticmethod
