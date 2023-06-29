@@ -8,3 +8,7 @@ class ResourceError(Exception):
 
 class ValidationError(Exception):
     pass
+
+
+class ResponseError(Exception):
+    pass

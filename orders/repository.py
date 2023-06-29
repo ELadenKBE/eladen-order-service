@@ -45,7 +45,7 @@ class OrdersRepository(RepositoryBase, IRepository):
             item = Order.objects.filter(id=searched_id).first()
         if item is None:
             raise ResourceError('object with searched id does not exist')
-        return [item]
+        return item
 
     @staticmethod
     def get_items_by_filter(search_filter: Q,

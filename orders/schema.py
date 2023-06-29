@@ -1,14 +1,63 @@
 import graphene
 from graphene_django import DjangoObjectType
 
+from order_service_v2.product_service import ProductService, GoodType
 from users.schema import UserType
 from .models import Order
 from .repository import OrdersRepository
+from django.forms.models import model_to_dict
 
 
-class OrderType(DjangoObjectType):
-    class Meta:
-        model = Order
+product_service = ProductService()
+
+
+class OrderType(graphene.ObjectType):
+    id = graphene.Int()
+    time_of_order = graphene.String()
+    items_price = graphene.Float()
+    delivery_price = graphene.Float()
+    user_id = graphene.Int()
+    delivery_status = graphene.String()
+    payment_status = graphene.String()
+    goods = graphene.List(GoodType)
+    delivery_address = graphene.String()
+
+    def __init__(self,
+                 id,
+                 goods=None,
+                 user_id=None,
+                 delivery_status=None,
+                 time_of_order=None,
+                 delivery_address=None,
+                 items_price=None,
+                 delivery_price=None,
+                 payment_status=None,
+                 ):
+        self.id = id
+        self.user_id = user_id,
+        self.goods = goods
+        self.time_of_order = time_of_order
+        self.items_price = items_price,
+        self.delivery_price = delivery_price
+        self.delivery_status = delivery_status
+        self.payment_status = payment_status
+        self.delivery_address = delivery_address
+
+
+def get_goods_of_order(dict_response, info):
+    goods_ids = dict_response['goods_ids']
+    del dict_response['goods_ids']
+    request_query = info.context.body.decode('utf-8')
+    has_goods = 'goods' in request_query
+    if has_goods:
+        goods = product_service.get_goods_by_ids(info, goods_ids)
+        return goods
+    else:
+        return []
+
+
+def get_response(info):
+    pass
 
 
 class Query(graphene.ObjectType):
@@ -25,9 +74,19 @@ class Query(graphene.ObjectType):
         :return:
         """
         if searched_id:
-            return OrdersRepository.get_by_id(info=info,
-                                              searched_id=searched_id)
-        return OrdersRepository.get_all_items(info)
+            order: Order = OrdersRepository.get_by_id(
+                                                info=info,
+                                                searched_id=searched_id)
+            order_dict = model_to_dict(order)
+            goods = get_goods_of_order(order_dict, info)
+            return [OrderType(goods=goods, **order_dict)]
+        orders = OrdersRepository.get_all_items(info)
+        list_with_orders = []
+        for order in orders:
+            order_dict = model_to_dict(order)
+            goods = get_goods_of_order(order_dict, info)
+            list_with_orders.append(OrderType(goods=goods, **order_dict))
+        return list_with_orders
 
 
 class CreateOrder(graphene.Mutation):
@@ -108,6 +167,7 @@ class UpdateOrder(graphene.Mutation):
         order = OrdersRepository.update_item(info=info,
                                              order_id=order_id,
                                              delivery_address=delivery_address)
+
         return UpdateOrder(
             id=order.id,
             delivery_address=order.delivery_address,
