@@ -103,13 +103,11 @@ class CreateOrder(graphene.Mutation):
     class Arguments:
         time_of_order = graphene.String()
         delivery_address = graphene.String()
-        goods_ids = graphene.List(graphene.ID, required=True)
 
    # @permission(roles=[Admin, User])
     def mutate(self, info,
                time_of_order,
-               delivery_address,
-               goods_ids):
+               delivery_address):
         """
         TODO finish docs
 
@@ -121,8 +119,7 @@ class CreateOrder(graphene.Mutation):
         """
         order = OrdersRepository.create_item(info=info,
                                              time_of_order=time_of_order,
-                                             delivery_address=delivery_address,
-                                             goods_ids=goods_ids
+                                             delivery_address=delivery_address
                                              )
 
         return CreateOrder(

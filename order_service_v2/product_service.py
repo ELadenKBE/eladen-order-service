@@ -136,6 +136,21 @@ class ProductService:
         self.validate_errors(response)
         return response
 
+    def _execute_query_with_token(self, query, info):
+        response = requests.post(self.url,
+                                 data={'query': query},
+                                 # TODO Implement tokenized request
+                                 headers={'AUTHORIZATION': "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRpbV91c2VyIiwiZXhwIjoxNjg4MDUxOTkzLCJvcmlnSWF0IjoxNjg4MDUxNjkzfQ.u3iluzDPT73PTY0XGGcp9mIf0VG04Idp-CMww5nfxKU"})
+        self.validate_errors(response)
+        return response
+
+    def _request_with_token(self, info: GraphQLResolveInfo):
+        cleaned = info.context.body.decode('utf-8') \
+            .replace('\\n', ' ') \
+            .replace('\\t', ' ')
+        query = json.loads(cleaned)['query']
+        return self._execute_query_with_token(query, info)
+
     def _request(self, info: GraphQLResolveInfo):
         cleaned = info.context.body.decode('utf-8') \
             .replace('\\n', ' ') \
@@ -249,3 +264,22 @@ class ProductService:
                   for query in queries]
         goods = [create_good_filler(**d) for d in goods_dicts]
         return goods
+
+    def get_items_with_token(self, info: GraphQLResolveInfo, query: str):
+        response = self._execute_query_with_token(query, info)
+        data = response.json().get('data', {})
+        return data
+
+    def get_cart(self, info):
+        query = """query{
+                      goodsLists(search:"cart"){
+                        goods{
+                          id
+                          price
+                        }
+                      }
+                    }"""
+        response_data = self.get_items_with_token(query=query, info=info)
+        goods_dicts = response_data['goodsLists'][0]['goods']
+        goods_ids = [int(good['id']) for good in goods_dicts]
+        return goods_ids

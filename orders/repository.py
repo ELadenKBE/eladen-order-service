@@ -2,9 +2,12 @@ from django.db.models import QuerySet, Q
 from graphql import GraphQLResolveInfo
 
 from order_service_v2.errors import UnauthorizedError, ResourceError
+from order_service_v2.product_service import ProductService
 from order_service_v2.repository_base import RepositoryBase, IRepository
 from orders.models import Order
 from users.models import ExtendedUser
+
+product_service = ProductService()
 
 
 def decrease_amounts(good_ids):
@@ -67,6 +70,7 @@ class OrdersRepository(RepositoryBase, IRepository):
         if user.is_admin():
             return Order.objects.all()
 
+
     @staticmethod
     def create_item(info: GraphQLResolveInfo = None, **kwargs) -> [QuerySet]:
         """
@@ -79,9 +83,9 @@ class OrdersRepository(RepositoryBase, IRepository):
         user = ExtendedUser.objects.filter(username="tim_admin").first()
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
-        good_ids = [int(id) for id in kwargs["goods_ids"]]
+        goods_in_cart = OrdersRepository.get_good_ids_in_cart(info)
         order = Order(
-                      goods_ids=good_ids,
+                      goods_ids=goods_in_cart,
                       user_id=user.id,
                       time_of_order=kwargs["time_of_order"],
                       delivery_address=kwargs["delivery_address"],
@@ -160,3 +164,9 @@ class OrdersRepository(RepositoryBase, IRepository):
     def delete_item(info: GraphQLResolveInfo, searched_id: str):
         order = Order.objects.filter(id=searched_id).first()
         order.delete()
+
+    @staticmethod
+    def get_good_ids_in_cart(info):
+
+        product_service.get_cart(info)
+
