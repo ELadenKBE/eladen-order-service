@@ -1,12 +1,10 @@
 import graphene
-from graphene_django import DjangoObjectType
+from django.forms.models import model_to_dict
 
 from order_service_v2.product_service import ProductService, GoodType
 from users.schema import UserType
 from .models import Order
 from .repository import OrdersRepository
-from django.forms.models import model_to_dict
-
 
 product_service = ProductService()
 
@@ -14,8 +12,8 @@ product_service = ProductService()
 class OrderType(graphene.ObjectType):
     id = graphene.Int()
     time_of_order = graphene.String()
-    items_price = graphene.Float()
-    delivery_price = graphene.Float()
+    items_price = graphene.Decimal()
+    delivery_price = graphene.Decimal()
     user_id = graphene.Int()
     delivery_status = graphene.String()
     payment_status = graphene.String()
@@ -34,10 +32,10 @@ class OrderType(graphene.ObjectType):
                  payment_status=None,
                  ):
         self.id = id
-        self.user_id = user_id,
+        self.user_id = user_id
         self.goods = goods
         self.time_of_order = time_of_order
-        self.items_price = items_price,
+        self.items_price = items_price
         self.delivery_price = delivery_price
         self.delivery_status = delivery_status
         self.payment_status = payment_status

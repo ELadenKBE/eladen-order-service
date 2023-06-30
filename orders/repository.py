@@ -70,7 +70,6 @@ class OrdersRepository(RepositoryBase, IRepository):
         if user.is_admin():
             return Order.objects.all()
 
-
     @staticmethod
     def create_item(info: GraphQLResolveInfo = None, **kwargs) -> [QuerySet]:
         """

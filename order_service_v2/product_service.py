@@ -1,6 +1,7 @@
 import ast
 import json
 import re
+import urllib.parse
 
 import graphene
 import requests
@@ -247,21 +248,22 @@ class ProductService:
     def get_goods_by_ids(self, info, goods_ids):
         # str to int list
         goods_ids = ast.literal_eval(goods_ids)
-        cleaned = info.context.body.decode('utf-8') \
+        cleaned_url_encoded = info.context.body.decode('utf-8') \
             .replace('\\n', ' ') \
             .replace('\\t', ' ')
-        query = json.loads(cleaned)['query']
+        decoded_string = urllib.parse.unquote(cleaned_url_encoded)\
+            .replace('+', ' ')
         pattern = r'goods\s*{([^}]*)}'
-        body_attr = re.search(pattern, query).group(1)
+        body_attr = re.search(pattern, decoded_string).group(1)
         query_string = '''{{
-              goods(searchedId: {id}) {{
-               {attr}
-              }}
-            }}'''
+                      goods(searchedId: {id}) {{
+                       {attr}
+                      }}
+                    }}'''
         queries = [query_string.format(id=x, attr=body_attr)
                    for x in goods_ids]
-        goods_dicts = [self._execute_query(query).json().get('data', {})['goods'][0]
-                  for query in queries]
+        goods_dicts = [self._execute_query(query).json()
+                       .get('data', {})['goods'][0] for query in queries]
         goods = [create_good_filler(**d) for d in goods_dicts]
         return goods
 
