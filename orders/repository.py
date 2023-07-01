@@ -111,7 +111,7 @@ class OrdersRepository(RepositoryBase, IRepository):
         # TODO return error if None?
         user: ExtendedUser = info.context.user
         user = ExtendedUser.objects.filter(username="tim_admin").first()
-        if user.is_user() and order.user == user or user.is_admin():
+        if user.is_user() and order.user_id == user.id or user.is_admin():
             if kwargs["delivery_address"] is not None:
                 order.delivery_address = kwargs["delivery_address"]
             order.save()
@@ -162,6 +162,8 @@ class OrdersRepository(RepositoryBase, IRepository):
     @staticmethod
     def delete_item(info: GraphQLResolveInfo, searched_id: str):
         order = Order.objects.filter(id=searched_id).first()
+        if order is None:
+            raise ResourceError('order with this id does not exist')
         order.delete()
 
     @staticmethod

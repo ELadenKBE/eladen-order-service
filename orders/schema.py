@@ -139,7 +139,7 @@ class UpdateOrder(graphene.Mutation):
     delivery_address = graphene.String()
     items_price = graphene.Float()
     delivery_price = graphene.Float()
-    user = graphene.Field(UserType)
+    user_id = graphene.Int()
     delivery_status = graphene.String()
     payment_status = graphene.String()
 
@@ -169,7 +169,7 @@ class UpdateOrder(graphene.Mutation):
             items_price=order.items_price,
             delivery_price=order.delivery_price,
             time_of_order=order.time_of_order,
-            user=order.user
+            user_id=order.user_id
         )
 
 
