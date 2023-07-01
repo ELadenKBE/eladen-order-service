@@ -82,9 +82,9 @@ class OrdersRepository(RepositoryBase, IRepository):
         user = ExtendedUser.objects.filter(username="tim_admin").first()
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
-        goods_in_cart = OrdersRepository.get_good_ids_in_cart(info)
+        goods_ids_in_cart = OrdersRepository.get_good_ids_in_cart(info)
         order = Order(
-                      goods_ids=goods_in_cart,
+                      goods_ids=goods_ids_in_cart,
                       user_id=user.id,
                       time_of_order=kwargs["time_of_order"],
                       delivery_address=kwargs["delivery_address"],
@@ -167,5 +167,5 @@ class OrdersRepository(RepositoryBase, IRepository):
     @staticmethod
     def get_good_ids_in_cart(info):
 
-        product_service.get_cart(info)
+        return product_service.get_cart(info)
 

@@ -9,7 +9,8 @@ from decouple import config
 from graphene_django import DjangoObjectType
 from graphql import GraphQLResolveInfo
 
-from order_service_v2.errors import ResponseError, ValidationError
+from order_service_v2.errors import ResponseError, ValidationError, \
+    ResourceError
 from categories.models import Category
 from goods.models import Good
 from goods_lists.models import GoodsList
@@ -141,7 +142,7 @@ class ProductService:
         response = requests.post(self.url,
                                  data={'query': query},
                                  # TODO Implement tokenized request
-                                 headers={'AUTHORIZATION': "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRpbV91c2VyIiwiZXhwIjoxNjg4MDUxOTkzLCJvcmlnSWF0IjoxNjg4MDUxNjkzfQ.u3iluzDPT73PTY0XGGcp9mIf0VG04Idp-CMww5nfxKU"})
+                                 headers={'AUTHORIZATION': "JWT " + config('AUTH_PRODUCT_KEY', default=False, cast=str)})
         self.validate_errors(response)
         return response
 
@@ -282,6 +283,11 @@ class ProductService:
                       }
                     }"""
         response_data = self.get_items_with_token(query=query, info=info)
-        goods_dicts = response_data['goodsLists'][0]['goods']
+        try:
+            goods_dicts = response_data['goodsLists'][0]['goods']
+        except IndexError:
+            raise ResourceError('user does not have any products in cart')
         goods_ids = [int(good['id']) for good in goods_dicts]
+        if not goods_ids:
+            raise ResourceError('user does not have any products in cart')
         return goods_ids
