@@ -8,8 +8,8 @@ class ExtendedUser(AbstractUser):
     role = models.IntegerField(blank=False, default=1, validators=[
         MinValueValidator(1), MaxValueValidator(3)])
     address = models.CharField(max_length=256, null=True)
-    firstname = models.CharField(max_length=256, null=True)
-    lastname = models.CharField(max_length=256, null=True)
+    firstName = models.CharField(max_length=256, null=True)
+    lastName = models.CharField(max_length=256, null=True)
     image = models.CharField(max_length=5000, null=True, blank=True)
 
     def is_user(self):
