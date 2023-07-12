@@ -14,8 +14,8 @@ from order_service_v2.errors import ResponseError, ValidationError, \
 from categories.models import Category
 from goods.models import Good
 from goods_lists.models import GoodsList
+from order_service_v2.user_service import UserType
 from users.models import ExtendedUser
-from users.schema import UserType
 
 
 class GoodType(DjangoObjectType):

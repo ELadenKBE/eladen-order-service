@@ -1,8 +1,8 @@
 import graphene
 from django.forms.models import model_to_dict
 
+from order_service_v2.authorization import grant_authorization
 from order_service_v2.product_service import ProductService, GoodType
-from users.schema import UserType
 from .models import Order
 from .repository import OrdersRepository
 
@@ -61,7 +61,7 @@ def get_response(info):
 class Query(graphene.ObjectType):
     orders = graphene.List(OrderType, searched_id=graphene.Int())
 
-    # @permission(roles=[Admin, User])
+    @grant_authorization
     def resolve_orders(self, info, searched_id=None, **kwargs):
         """
         TODO add docstring
@@ -102,7 +102,7 @@ class CreateOrder(graphene.Mutation):
         time_of_order = graphene.String()
         delivery_address = graphene.String()
 
-   # @permission(roles=[Admin, User])
+    @grant_authorization
     def mutate(self, info,
                time_of_order,
                delivery_address):
@@ -147,7 +147,7 @@ class UpdateOrder(graphene.Mutation):
         order_id = graphene.Int()
         delivery_address = graphene.String()
 
-  #  @permission(roles=[Admin])
+    @grant_authorization
     def mutate(self, info,
                order_id,
                delivery_address=None):
@@ -224,7 +224,7 @@ class DeleteOrder(graphene.Mutation):
     class Arguments:
         order_id = graphene.Int(required=True)
 
-  #  @permission(roles=[Admin])
+    @grant_authorization
     def mutate(self, info, order_id):
         """
         TODO add docs
@@ -241,7 +241,7 @@ class DeleteOrder(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     create_order = CreateOrder.Field()
-    change_delivery_status = ChangeDeliveryStatus.Field()
+    change_delivery_status = ChangeDeliveryStatus.Field() # intern
     change_payment_status = ChangePaymentStatus.Field() # intern
     update_order = UpdateOrder.Field()
     delete_order = DeleteOrder.Field()
