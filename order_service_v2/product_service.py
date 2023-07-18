@@ -10,11 +10,11 @@ from graphene_django import DjangoObjectType
 from graphql import GraphQLResolveInfo
 
 from order_service_v2.errors import ResponseError, ValidationError, \
-    ResourceError
+    ResourceError, UnauthorizedError
 from categories.models import Category
 from goods.models import Good
 from goods_lists.models import GoodsList
-from order_service_v2.user_service import UserType
+from users.user_service import UserType
 from users.models import ExtendedUser
 
 
@@ -138,11 +138,25 @@ class ProductService:
         self.validate_errors(response)
         return response
 
+    @staticmethod
+    def _get_auth_header(info: GraphQLResolveInfo):
+        try:
+            auth_header: str = info.context.headers['AUTHORIZATION']
+        except KeyError as key_error:
+            raise UnauthorizedError('authorization error: AUTHORIZATION header'
+                                    ' is not specified')
+        except ResponseError as response_error:
+            raise UnauthorizedError('authorization error: ',
+                                    response_error.args[0])
+        return auth_header
+
+    @verify_connection
     def _execute_query_with_token(self, query, info):
+        auth_param = self._get_auth_header(info)
         response = requests.post(self.url,
                                  data={'query': query},
                                  # TODO Implement tokenized request
-                                 headers={'AUTHORIZATION': "JWT " + config('AUTH_PRODUCT_KEY', default=False, cast=str)})
+                                 headers={'AUTHORIZATION': auth_param})
         self.validate_errors(response)
         return response
 
@@ -263,15 +277,15 @@ class ProductService:
                     }}'''
         queries = [query_string.format(id=x, attr=body_attr)
                    for x in goods_ids]
-        goods_dicts = [self._execute_query(query).json()
-                       .get('data', {})['goods'][0] for query in queries]
+        goods_dicts = [self.get_items_with_token(info=info, query=query)
+                       for query in queries]
         goods = [create_good_filler(**d) for d in goods_dicts]
         return goods
 
     def get_items_with_token(self, info: GraphQLResolveInfo, query: str):
         response = self._execute_query_with_token(query, info)
         data = response.json().get('data', {})
-        return data
+        return data['goods'][0]
 
     def get_cart(self, info):
         query = """query{

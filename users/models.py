@@ -11,6 +11,7 @@ class ExtendedUser(AbstractUser):
     firstName = models.CharField(max_length=256, null=True)
     lastName = models.CharField(max_length=256, null=True)
     image = models.CharField(max_length=5000, null=True, blank=True)
+    sub = models.CharField(max_length=256, null=True)
 
     def is_user(self):
         return self.role == 1
