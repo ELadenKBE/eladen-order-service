@@ -155,7 +155,6 @@ class ProductService:
         auth_param = self._get_auth_header(info)
         response = requests.post(self.url,
                                  data={'query': query},
-                                 # TODO Implement tokenized request
                                  headers={'AUTHORIZATION': auth_param})
         self.validate_errors(response)
         return response
@@ -277,7 +276,7 @@ class ProductService:
                     }}'''
         queries = [query_string.format(id=x, attr=body_attr)
                    for x in goods_ids]
-        goods_dicts = [self.get_items_with_token(info=info, query=query)
+        goods_dicts = [self.get_items_with_token(info=info, query=query)['goods'][0]
                        for query in queries]
         goods = [create_good_filler(**d) for d in goods_dicts]
         return goods
@@ -285,7 +284,7 @@ class ProductService:
     def get_items_with_token(self, info: GraphQLResolveInfo, query: str):
         response = self._execute_query_with_token(query, info)
         data = response.json().get('data', {})
-        return data['goods'][0]
+        return data
 
     def get_cart(self, info):
         query = """query{

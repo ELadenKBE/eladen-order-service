@@ -79,7 +79,6 @@ class OrdersRepository(RepositoryBase, IRepository):
                 """
         # TODO notify sellers
         user = info.context.user or None
-        user = ExtendedUser.objects.filter(username="tim_admin").first()
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
         goods_ids_in_cart = OrdersRepository.get_good_ids_in_cart(info)
