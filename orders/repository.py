@@ -71,7 +71,9 @@ class OrdersRepository(RepositoryBase, IRepository):
             return Order.objects.all()
 
     @staticmethod
-    def create_item(info: GraphQLResolveInfo = None, **kwargs) -> [QuerySet]:
+    def create_item_with_foreign_ids(goods_ids_in_cart,
+                                     info: GraphQLResolveInfo = None,
+                                     **kwargs) -> [QuerySet]:
         """
                 TODO add docs
                 :param info:
@@ -81,7 +83,6 @@ class OrdersRepository(RepositoryBase, IRepository):
         user = info.context.user or None
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
-        goods_ids_in_cart = OrdersRepository.get_good_ids_in_cart(info)
         order = Order(
                       goods_ids=goods_ids_in_cart,
                       user_id=user.id,
@@ -165,8 +166,5 @@ class OrdersRepository(RepositoryBase, IRepository):
             raise ResourceError('order with this id does not exist')
         order.delete()
 
-    @staticmethod
-    def get_good_ids_in_cart(info):
 
-        return product_service.get_cart(info)
 

@@ -6,3 +6,4 @@ SECRET_KEY=<br />
 DEBUG=<br />
 PRODUCT_SERVICE_URL=<br />
 USER_SERVICE_URL=<br />
+RABBITMQ_HOST=<br />

@@ -2,11 +2,13 @@ import graphene
 from django.forms.models import model_to_dict
 
 from order_service_v2.authorization import grant_authorization
+from order_service_v2.checkout_producer import CheckoutProducer
 from order_service_v2.product_service import ProductService, GoodType
 from .models import Order
 from .repository import OrdersRepository
 
 product_service = ProductService()
+checkout_producer = CheckoutProducer()
 
 
 class OrderType(graphene.ObjectType):
@@ -103,22 +105,23 @@ class CreateOrder(graphene.Mutation):
         delivery_address = graphene.String()
 
     @grant_authorization
-    def mutate(self, info,
-               time_of_order,
-               delivery_address):
+    def mutate(self, info, time_of_order, delivery_address):
         """
         TODO finish docs
+        TODO create a new abstraction layer for handling services
 
         :param info:
         :param time_of_order:
         :param delivery_address:
-        :param goods_ids:
         :return:
         """
-        order = OrdersRepository.create_item(info=info,
-                                             time_of_order=time_of_order,
-                                             delivery_address=delivery_address
-                                             )
+        ids_in_cart = product_service.get_cart(info)
+        order: Order = OrdersRepository.create_item_with_foreign_ids(
+            goods_ids_in_cart=ids_in_cart,
+            info=info,
+            time_of_order=time_of_order,
+            delivery_address=delivery_address)
+        checkout_producer.publish_order(order)
 
         return CreateOrder(
             id=order.id,
