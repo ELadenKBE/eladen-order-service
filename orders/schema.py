@@ -203,7 +203,7 @@ class ChangePaymentStatus(graphene.Mutation):
         id = graphene.Int()
         payment_status = graphene.String()
 
-    def mutate(self, info, id_arg, payment_status):
+    def mutate(self, info, id, payment_status):
         """
         TODO add docs
 
@@ -214,11 +214,11 @@ class ChangePaymentStatus(graphene.Mutation):
         """
         order = OrdersRepository.change_payment_status(
                                                 info=info,
-                                                id_arg=id_arg,
+                                                id_arg=id,
                                                 payment_status=payment_status)
 
-        return ChangeDeliveryStatus(id=order.id,
-                                    payment_status=order.payment_status)
+        return ChangePaymentStatus(id=order.id,
+                                   payment_status=order.payment_status)
 
 
 class DeleteOrder(graphene.Mutation):
