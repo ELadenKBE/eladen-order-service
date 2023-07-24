@@ -1,6 +1,7 @@
 import json
 
 import pika as pika
+from pika import PlainCredentials
 from pika.exceptions import StreamLostError
 
 from orders.models import Order
@@ -19,7 +20,11 @@ class CheckoutProducer:
         self.connect()
 
     def connect(self):
-        connection_params = pika.ConnectionParameters(host)
+        username = config('RABBITMQ_USERNAME', default=False, cast=str)
+        password = config('RABBITMQ_PASSWORD', default=False, cast=str)
+        connection_params = pika.ConnectionParameters(
+            host=host, credentials=PlainCredentials(username=username,
+                                                    password=password))
         self.connection = pika.BlockingConnection(connection_params)
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue='checkout_queue')

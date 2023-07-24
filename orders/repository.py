@@ -133,11 +133,10 @@ class OrdersRepository(RepositoryBase, IRepository):
                 :param delivery_status:
                 :return:
                 """
-        user = info.context.user or None
         user = ExtendedUser.objects.filter(username="tim_admin").first()
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
-        order = Order.objects.get(id=id_arg)
+        order = Order.objects.filter(id=id_arg).first()
         if order is None:
             raise ResourceError("Order is not accessible")
         order.delivery_status = delivery_status
@@ -148,7 +147,6 @@ class OrdersRepository(RepositoryBase, IRepository):
     def change_payment_status(info: GraphQLResolveInfo,
                               id_arg: str,
                               payment_status: str) -> [QuerySet]:
-        user = info.context.user or None
         user = ExtendedUser.objects.filter(username="tim_admin").first()
         if user is None:
             raise UnauthorizedError("Unauthorized access!")
@@ -165,6 +163,3 @@ class OrdersRepository(RepositoryBase, IRepository):
         if order is None:
             raise ResourceError('order with this id does not exist')
         order.delete()
-
-
-

@@ -184,11 +184,11 @@ class ChangeDeliveryStatus(graphene.Mutation):
         id = graphene.Int()
         delivery_status = graphene.String()
 
-    def mutate(self, info, id_arg, delivery_status):
+    def mutate(self, info, id, delivery_status):
 
         order = OrdersRepository.change_delivery_status(
                                                 info=info,
-                                                id_arg=id_arg,
+                                                id_arg=id,
                                                 delivery_status=delivery_status)
 
         return ChangeDeliveryStatus(id=order.id,
