@@ -13,8 +13,9 @@ class UserType(DjangoObjectType):
 
 
 class UserService(BaseService):
-
-    url = config('USER_SERVICE_URL', default=None, cast=str)
+    # url = config('USER_SERVICE_URL',
+    #              default="http://user-identity:8081/graphql/", cast=str)
+    url = "http://user-identity:8081/graphql/"
     service_name = 'User'
 
     def get_user(self, sub: str):
