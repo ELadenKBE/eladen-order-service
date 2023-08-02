@@ -15,8 +15,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the project code into the container
 COPY . /code/
 
-# Run Django migrations (Added this step)
-RUN python manage.py migrate
 
 # Expose the server port
 EXPOSE 8083
