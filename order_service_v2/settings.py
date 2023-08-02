@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'order_service_v2.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 local_mode = config('LOCAL_MODE', default=False, cast=bool)
-local_mode = False
+
 if local_mode:
     DATABASES = {
         'default': {
@@ -93,11 +93,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'order_service_db',
+            'NAME': config('MYSQL_DATABASE', default=False, cast=str),
             'USER': 'root',
-            'PASSWORD': 'rootpassword',
-            'HOST': 'localhost',
-            'PORT': '3306',
+            'PASSWORD': config('MYSQL_PASSWORD', default=False, cast=str),
+            'HOST': config('MYSQL_HOST', default=False, cast=str),
+            'PORT': config('MYSQL_PORT', default=False, cast=str),
         }
     }
 
