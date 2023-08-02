@@ -98,9 +98,7 @@ else:
             'USER': 'root',
             'PASSWORD': config('MYSQL_PASSWORD',
                                default="rootpassword", cast=str),
-            'HOST': config('MYSQL_HOST',
-                           default="order_db-1",
-                           cast=str),
+            'HOST': 'order_db',
             'PORT': config('MYSQL_PORT', default="3306", cast=str),
         }
     }
