@@ -93,11 +93,13 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': config('MYSQL_DATABASE', default=False, cast=str),
+            'NAME': config('MYSQL_DATABASE',
+                           default="order_service_db", cast=str),
             'USER': 'root',
-            'PASSWORD': config('MYSQL_PASSWORD', default=False, cast=str),
-            'HOST': config('MYSQL_HOST', default=False, cast=str),
-            'PORT': config('MYSQL_PORT', default=False, cast=str),
+            'PASSWORD': config('MYSQL_PASSWORD',
+                               default="rootpassword", cast=str),
+            'HOST': config('MYSQL_HOST', default="order_db", cast=str),
+            'PORT': config('MYSQL_PORT', default="3306", cast=str),
         }
     }
 
