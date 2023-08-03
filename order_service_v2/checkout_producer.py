@@ -8,7 +8,7 @@ from orders.models import Order
 from decouple import config
 from django.forms.models import model_to_dict
 
-host = config('RABBITMQ_HOST', default="localhost", cast=str)
+
 
 
 class CheckoutProducer:
@@ -21,11 +21,12 @@ class CheckoutProducer:
 
     def connect(self):
         local_mode = config('LOCAL_MODE', default=False, cast=bool)
-        if local_mode:
-            print("Local mode is on! connection to rabbitmq is off")
-            return
-        username = config('RABBITMQ_USERNAME', default=False, cast=str)
-        password = config('RABBITMQ_PASSWORD', default=False, cast=str)
+        # if local_mode:
+        #     print("Local mode is on! connection to rabbitmq is off")
+        #     return
+        username = config('RABBITMQ_USERNAME', default="admin", cast=str)
+        password = config('RABBITMQ_PASSWORD', default="12345", cast=str)
+        host = config('RABBITMQ_HOST', default="rabbitmq", cast=str)
         connection_params = pika.ConnectionParameters(
             host=host, credentials=PlainCredentials(username=username,
                                                     password=password))
