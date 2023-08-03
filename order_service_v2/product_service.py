@@ -9,6 +9,7 @@ from decouple import config
 from graphene_django import DjangoObjectType
 from graphql import GraphQLResolveInfo
 
+from order_service_v2.base_service import BaseService
 from order_service_v2.errors import ResponseError, ValidationError, \
     ResourceError, UnauthorizedError
 from categories.models import Category
@@ -50,6 +51,7 @@ class GoodsListTransferType(graphene.ObjectType):
 
 
 def verify_connection(func):
+    # TODO deprecated. causes errors
     def wrapper(*args, **kwargs):
         try:
             introspection_query = {
@@ -146,6 +148,29 @@ class ProductService:
         self.validate_errors(response)
         return response
 
+    def verify_connection(self):
+        try:
+            introspection_query = {
+                "query": """
+                            query {
+                                __schema {
+                                    queryType {
+                                        name
+                                    }
+                                }
+                            }
+                        """
+            }
+            response = requests.post(self.url, data=introspection_query)
+            if response.status_code == 200:
+                pass
+            else:
+                raise ResponseError(f"{self.service_name}"
+                                    f" Service is not answering")
+        except requests.exceptions.RequestException:
+            raise ResponseError(f"{self.service_name} Service is not answering"
+                                )
+
     @staticmethod
     def _get_auth_header(info: GraphQLResolveInfo):
         try:
@@ -158,8 +183,9 @@ class ProductService:
                                     response_error.args[0])
         return auth_header
 
-    @verify_connection
+#    @verify_connection
     def _execute_query_with_token(self, query, info):
+        self.verify_connection()
         auth_param = self._get_auth_header(info)
         response = requests.post(self.url,
                                  data={'query': query},
@@ -181,8 +207,9 @@ class ProductService:
         query = json.loads(cleaned)['query']
         return self._execute_query(query)
 
-    @verify_connection
+#    @verify_connection
     def _get_data(self, entity_name: str, info: GraphQLResolveInfo):
+        self.verify_connection()
         response = self._request(info=info)
         data = response.json().get('data', {})
         return data.get(entity_name, [])
@@ -195,8 +222,9 @@ class ProductService:
             )['errors']
             raise ValidationError(cleaned_json[0]['message'])
 
-    @verify_connection
+    #@verify_connection
     def _create_item(self, entity_name: str, info: GraphQLResolveInfo):
+        self.verify_connection()
         item = self._get_data(info=info, entity_name=entity_name)
         return item
 
