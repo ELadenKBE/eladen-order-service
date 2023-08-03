@@ -95,9 +95,9 @@ else:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': config('MYSQL_DATABASE',
                            default="order_service_db", cast=str),
-            'USER': 'root',
-            'PASSWORD': config('MYSQL_PASSWORD',
-                               default="rootpassword", cast=str),
+            'USER': config('MYSQL_PASSWORD',
+                           default='order_user', cast=str),
+            'PASSWORD': config('MYSQL_PASSWORD', default="password", cast=str),
             'HOST': 'order_db',
             'PORT': config('MYSQL_PORT', default="3306", cast=str),
         }
