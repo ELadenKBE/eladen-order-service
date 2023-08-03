@@ -122,11 +122,11 @@ class CreateOrder(graphene.Mutation):
             info=info,
             time_of_order=time_of_order,
             delivery_address=delivery_address)
-        local_mode = config('LOCAL_MODE', default=False, cast=bool)
-        if local_mode:
-            print("Local mode is on! connection to rabbitmq is off")
-        else:
-            checkout_producer.publish_order(order)
+        # local_mode = config('LOCAL_MODE', default=False, cast=bool)
+        # # if local_mode:
+        # #     print("Local mode is on! connection to rabbitmq is off")
+        # else:
+        checkout_producer.publish_order(order)
 
         return CreateOrder(
             id=order.id,
