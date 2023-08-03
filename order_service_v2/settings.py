@@ -80,13 +80,28 @@ WSGI_APPLICATION = 'order_service_v2.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+local_mode = config('LOCAL_MODE', default=False, cast=bool)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if local_mode:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': config('MYSQL_DATABASE',
+                           default="order_service_db", cast=str),
+            'USER': 'root',
+            'PASSWORD': config('MYSQL_PASSWORD',
+                               default="rootpassword", cast=str),
+            'HOST': 'order_db',
+            'PORT': config('MYSQL_PORT', default="3306", cast=str),
+        }
+    }
 
 
 # Password validation

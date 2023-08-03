@@ -64,9 +64,8 @@ class OrdersRepository(RepositoryBase, IRepository):
                 :return:
                 """
         user: ExtendedUser = info.context.user
-        user = ExtendedUser.objects.filter(username="tim_admin").first()
         if user.is_user():
-            return Order.objects.filter(user=user).all()
+            return Order.objects.filter(user_id=user.id).all()
         if user.is_admin():
             return Order.objects.all()
 

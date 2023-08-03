@@ -130,10 +130,16 @@ def create_goods_list_filler(**params) -> GoodsListTransferType:
 
 
 class ProductService:
-    # url = config('PRODUCT_SERVICE_URL',
-    #              default="http://product-service:8082/graphql/",
-    #              cast=str)
-    url = "http://product-service:8082/graphql/"
+
+    def __init__(self):
+        local_mode = config('LOCAL_MODE', default=False, cast=bool)
+        if local_mode:
+            self.url = config('PRODUCT_SERVICE_URL',
+                              default="http://product-service:8082/graphql/",
+                              cast=str)
+        else:
+            self.url = "http://product-service:8082/graphql/"
+        self.service_name = 'Product'
 
     def _execute_query(self, query):
         response = requests.post(self.url, data={'query': query})

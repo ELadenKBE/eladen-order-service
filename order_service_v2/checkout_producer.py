@@ -20,6 +20,10 @@ class CheckoutProducer:
         self.connect()
 
     def connect(self):
+        local_mode = config('LOCAL_MODE', default=False, cast=bool)
+        if local_mode:
+            print("Local mode is on! connection to rabbitmq is off")
+            return
         username = config('RABBITMQ_USERNAME', default=False, cast=str)
         password = config('RABBITMQ_PASSWORD', default=False, cast=str)
         connection_params = pika.ConnectionParameters(

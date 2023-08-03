@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  order_db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: order_service_db   # Add this line to create the database
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_db_data_container:/var/lib/mysql
+
+  db_adminer:
+    image: adminer:latest
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql_db_container
+    ports:
+      - 8086:8080
+
+volumes:
+  mysql_db_data_container:
